@@ -1,0 +1,92 @@
+﻿@model Finance.DBset.Cost
+
+@{
+    ViewBag.Title = "修改紀錄";
+}
+<input type="number" id="CostID" value="@Model.ID" hidden />
+<center>
+    <div style="width:900px;text-align:left;">
+        <table class="table table-striped gridStyle" style="margin-bottom:0px;">
+            <colgroup>
+                <col style="width:100px;" />
+                <col style="width: 200px;" />
+                <col style="width: 200px;" />
+                <col style="width: 200px;" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th style="text-align:center;">建立日期</th>
+                    <th style="text-align:center;">分類</th>
+                    <th style="text-align:center;">名稱</th>
+                    <th style="text-align:center;">金額</th>
+                </tr>
+            </thead>
+        </table>
+        <div style="height:450px;">
+            <table class="table table-striped gridStyle" style="margin-top:0px;">
+                <colgroup>
+                    <col style="width:100px;" />
+                    <col style="width: 200px;" />
+                    <col style="width: 200px;" />
+                    <col style="width: 200px;" />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td style="text-align:center;"><input type="datetime" id="date" value="@Model.date" disabled /></td>
+                        <td style="text-align:center;">
+                            <select name="classification" id="classification" class="classificationClass" value="@Model.classification">
+                                <option value="">--請選擇--</option>
+                                <option value="菜市場">菜市場</option>
+                                <option value="地球村">地球村</option>
+                                <option value="麵包">麵包</option>
+                                <option value="其他">其他</option>
+                                <option value="小寶">小寶</option>
+                                <option value="購物">購物</option>
+                                <option value="投資">投資</option>
+                                <option value="加油">加油</option>
+                                <option value="停車">停車</option>
+                                <option value="娛樂">娛樂</option>
+                                <option value="收入">收入</option>
+                                <option value="醫療">醫療</option>
+                                <option value="保健食品">保健食品</option>
+                                <option value="交通">交通</option>
+                            </select>
+                        </td>
+                        <td style="text-align:center;"><input type="text" id="name" value="@Model.name" /></td>
+                        <td style="text-align:center;"><input type="text" id="cost" value="@Model.cost" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div>
+        <input type="button" id="btnSubmit" value="儲存" />
+    </div>
+</center>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script>
+    $(function () {
+
+        $("#btnSubmit").click(function () {
+          //  alert("enter");
+            var obj = {};
+            obj.classification = $("#classification").val();
+            obj.name = $("#name").val();
+            obj.cost = $("#cost").val();
+            obj.ID = $("#CostID").val();
+           // blockUI();
+            $.ajax({
+                type: "Post",
+                url: "@Url.Action("Update_Save", "Home")",
+                data: obj,
+                dataType: "json",
+            }).done(function (data) {
+                debugger;
+                alert("更改成功");
+                window.location.href = '@Url.Action("Index", "Home")';
+            }).fail(function (errMsg) {
+                alert("更改失敗");
+            })
+        });
+    });
+</script>

@@ -1,0 +1,169 @@
+﻿
+@{
+    ViewBag.Title = "Test";
+}
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js">
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js">
+</script>
+
+<body>
+    <button class="btn btn-md btn-primary"
+            id="addBtn" type="button" style="width:100px;">
+        新增項目
+    </button>
+    <div class="container pt-4">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="tblCosts">
+                <thead>
+                    <tr>
+                        <th style="text-align:center;">日期</th>
+                        <th style="text-align:center;">分類</th>
+                        <th style="text-align:center;">名稱</th>
+                        <th style="text-align:center;">金額</th>
+                        <th style="text-align:center;">刪除</th>
+
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div>
+        <button class="btn btn-md btn-info" id="saveBtn" type="button" style="width:100px;">
+            儲存
+        </button>
+    </div>
+</body>
+<script>
+    $(document).ready(function () {
+
+        // Denotes total number of rows
+        var rowIdx = 0;
+
+        // jQuery button click event to add a row
+        $('#addBtn').on('click', function () {
+
+            // Adding a row inside the tbody.
+            $('#tbody').append(`<tr id="R_${++rowIdx} " class="data-contact-person">
+            <td>
+               <input  type="datetime" id="date_${rowIdx}" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" class="dateClass" disabled/>
+            </td>
+            <td>
+                <select name="classification" id="classification_${rowIdx}" class="classificationClass">
+		            <option value="">--請選擇--</option>
+		            <option value="菜市場" selected>菜市場</option>
+		            <option value="地球村">地球村</option>
+		            <option value="麵包">麵包</option>
+		            <option value="其他">其他</option>
+		            <option value="小寶">小寶</option>
+		            <option value="購物">購物</option>
+		            <option value="投資">投資</option>
+		            <option value="加油">加油</option>
+		            <option value="停車">停車</option>
+		            <option value="娛樂">娛樂</option>
+		            <option value="收入">收入</option>
+		            <option value="醫療">醫療</option>
+		            <option value="保健食品">保健食品</option>
+		            <option value="交通">交通</option>
+	            </select>
+            </td>
+            <td>
+                 <input type="text" id="name_${rowIdx}" value="" class="nameClass"/>
+            </td>
+             <td>
+                 <input type="text" id="cost_${rowIdx}" value="" class="costClass"/>
+            </td>
+
+            <td class="text-center">
+                <button class="btn btn-danger remove"
+                type="button">移除</button>
+                </td>
+            </tr>`);
+        });
+        function getAllCostData() {
+            var data = [];
+            $('tr.data-contact-person').each(function () {
+                debugger;
+                var date = $(this).find('.dateClass').val();
+                var classification = $(this).find('.classificationClass').val();
+                var name = $(this).find('.nameClass').val();
+                var cost = $(this).find('.costClass').val();
+
+                var alldata = {
+                    'date': date,
+                    'classification': classification,
+                    'name': name,
+                    'cost': cost
+                }
+                data.push(alldata);
+            });
+            console.log(data);//
+            return data;
+        }
+
+        $(document).on('click', "#saveBtn", function () {
+
+            if (confirm('請確認是否儲存?')) {
+
+                var DataSet = new FormData();
+            //var data = JSON.stringify(getAllCostData());
+                DataSet.append("REQUESTS", JSON.stringify(getAllCostData()));
+            var url = "@Url.Action("_Save", "Home")";
+                $.ajax({
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    url: "@Url.Action("_Save", "Home")",
+                    data: DataSet,
+                async: false
+            }).done(function (data) {
+                var result = JSON.parse(data);
+                if (result.msg != '') {
+                    alert(result.msg);
+                }
+                else {
+                    alert("儲存成功");
+                    window.location = "@Url.Action("Index", "Home")";
+                }
+                unblockUI();
+            }).fail(function (error) {
+                alert(error);
+                unblockUI();
+            });
+        }
+
+        });
+        // jQuery button click event to remove a row.
+        $('#tbody').on('click', '.remove', function () {
+
+            var child = $(this).closest('tr').nextAll();
+
+            child.each(function () {
+
+                var id = $(this).attr('id');
+                var idx = $(this).children('.row-index').children('p');
+                var dig = parseInt(id.substring(1));
+
+                // Modifying row index.
+                idx.html(`Row ${dig - 1}`);
+
+                // Modifying row id.
+                $(this).attr('id', `R${dig - 1}`);
+            });
+
+            // Removing the current row.
+            $(this).closest('tr').remove();
+
+            // Decreasing total number of rows by 1.
+            rowIdx--;
+        });
+    });
+</script>
